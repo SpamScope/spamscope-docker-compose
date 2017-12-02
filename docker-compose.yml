@@ -51,7 +51,6 @@ services:
   # SpamScope
   spamscope:
     image: ${SPAMSCOPE_IMAGE_NAME}
-    #build: .
     container_name: spamscope
     mem_limit: ${SPAMSCOPE_MEM_LIMIT}
     dns:

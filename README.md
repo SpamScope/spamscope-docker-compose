@@ -23,6 +23,11 @@ $ sudo docker-compose exec spamscope spamscope-topology submit -g spamscope_elas
 Please check `spamscope-topology submit -h` for more details.
 
 
+## :warning: Important :warning:
+Remember to follow [these instructions](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode)
+before start all docker containers.
+
+
 ## Apache Storm settings
 
 For more details go to [SpamScope project](https://github.com/SpamScope/spamscope).

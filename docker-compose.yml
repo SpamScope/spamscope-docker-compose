@@ -1,10 +1,12 @@
+---
 version: '2.1'
 
 services:
 
   # Elasticsearch
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_TAG}
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:${ELK_TAG}
+    restart: always
     container_name: elasticsearch
     environment:
       - cluster.name=${CLUSTER_NAME}
@@ -23,34 +25,35 @@ services:
       - IPC_LOCK
     volumes:
       - esdata:${ELASTIC_DATA}
-      - ./elasticsearch/config:/usr/share/elasticsearch/config
     ports:
       - "${ELK_BIND_IP}:9200:9200"
     healthcheck:
-        test: curl -fs http://localhost:9200/
+      test: curl -fs http://localhost:9200/
     networks:
       - ${NET_NAME}
-  
+
   # Kibana
   kibana:
-    image: docker.elastic.co/kibana/kibana:${ELK_TAG}
+    image: docker.elastic.co/kibana/kibana-oss:${ELK_TAG}
+    restart: always
     container_name: kibana
     mem_limit: ${KIBANA_MEM_LIMIT}
-    volumes:
-      - ./kibana/config:/opt/kibana/config
+    environment:
+      - "NODE_OPTIONS=--max-old-space-size=${KIBANA_HEAP_SIZE}"
     ports:
       - "${ELK_BIND_IP}:5601:5601"
     healthcheck:
-        test: curl -fs http://localhost:5601/
+      test: curl -fs http://localhost:5601/
     networks:
       - ${NET_NAME}
     depends_on:
-        elasticsearch:
-            condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   # SpamScope
   spamscope:
     image: ${SPAMSCOPE_IMAGE_NAME}
+    restart: always
     container_name: spamscope
     mem_limit: ${SPAMSCOPE_MEM_LIMIT}
     dns:
@@ -61,13 +64,14 @@ services:
     volumes:
       - ${HOST_SPAMSCOPE_CONF}:/etc/spamscope
       - ${HOST_MAILS_FOLDER}:${DOCKER_MAILS_FOLDER}
+      - spamscope_logs:/logs
     healthcheck:
-        test: curl -fs http://localhost:8080/
+      test: curl -fs http://localhost:8080/
     networks:
       - ${NET_NAME}
     depends_on:
-        elasticsearch:
-            condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
 volumes:
   esdata:
